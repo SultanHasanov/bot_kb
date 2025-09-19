@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Teachbase Answers Viewer</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      button {
+        padding: 10px 20px;
+        margin: 10px 0;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background: #f2f2f2;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Проверка ответов Teachbase</h1>
+
+    <label>API публичный ключ (client_id):</label><br />
+    <input type="text" id="client_id" size="50" /><br /><br />
+
+    <label>API секретный ключ (client_secret):</label><br />
+    <input type="password" id="client_secret" size="50" /><br /><br />
+
+    <button onclick="fetchData()">Получить данные</button>
+
+    <div id="result"></div>
+
+    <script>
+      async function fetchData() {
+        const client_id = document.getElementById("client_id").value.trim();
+        const client_secret = document
+          .getElementById("client_secret")
+          .value.trim();
+
+        if (!client_id || !client_secret) {
+          alert("Введите client_id и client_secret");
+          return;
+        }
+
+        try {
+          // 1. Получаем токен
+          const tokenResponse = await fetch(
+            "http://localhost:3000/api/checking_answers",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+          const data = await tokenResponse.json();
+
+          // 3. Отображаем таблицу
+          let html =
+            "<table><tr><th>ID</th><th>Курс</th><th>Задание</th><th>Статус</th><th>Имя</th><th>Фамилия</th><th>Email</th></tr>";
+          data.data.forEach((item) => {
+            html += `<tr>
+            <td>${item.id}</td>
+            <td>${item.course_name}</td>
+            <td>${item.education_content_name}</td>
+            <td>${item.result_status}</td>
+            <td>${item.user.name}</td>
+            <td>${item.user.last_name}</td>
+            <td>${item.user.email}</td>
+          </tr>`;
+          });
+          html += "</table>";
+
+          document.getElementById("result").innerHTML = html;
+        } catch (err) {
+          document.getElementById(
+            "result"
+          ).innerHTML = `<p style="color:red;">Ошибка: ${err.message}</p>`;
+        }
+      }
+    </script>
+  </body>
+</html>
