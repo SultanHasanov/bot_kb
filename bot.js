@@ -94,12 +94,15 @@ bot.action(/course_(\d+)/, async (ctx) => {
     const courseId = ctx.match[1];
     const courseName = courses[courseId];
     
-    // Показываем "загрузка"
+    // Удаляем кнопки и показываем "Загрузка..."
+    await ctx.editMessageText("Загрузка...", { reply_markup: { inline_keyboard: [] } });
+    
+    // Показываем уведомление о загрузке
     await ctx.answerCbQuery(`Загружаем данные для ${courseName}...`);
     
     const token = await getToken();
     if (!token) {
-      await ctx.reply("❌ Не удалось получить токен Teachbase");
+      await ctx.editMessageText("❌ Не удалось получить токен Teachbase");
       return;
     }
 
@@ -115,7 +118,7 @@ bot.action(/course_(\d+)/, async (ctx) => {
   } catch (err) {
     console.error(err);
     await ctx.answerCbQuery("Ошибка при загрузке данных");
-    await ctx.reply("Ошибка: " + err.message);
+    await ctx.editMessageText("Ошибка: " + err.message);
   }
 });
 
